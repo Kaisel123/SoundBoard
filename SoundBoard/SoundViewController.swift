@@ -18,6 +18,9 @@ class SoundViewController: UIViewController {
     
     var grabarAudio:AVAudioRecorder?
     
+    var reproducirAudio:AVAudioPlayer?
+    var audioURL:URL?
+    
     @IBAction func grabarTapped(_ sender: Any) {
         if grabarAudio!.isRecording {
             // DETENER LA GRABACION
@@ -34,6 +37,11 @@ class SoundViewController: UIViewController {
         }
     }
     @IBAction func reproducirTapped(_ sender: Any) {
+        do{
+            try reproducirAudio = AVAudioPlayer(contentsOf: audioURL!)
+            reproducirAudio!.play()
+            print("Reproduciendo")
+        }catch {}
     }
     @IBAction func agregarTapped(_ sender: Any) {
     }
@@ -55,11 +63,11 @@ class SoundViewController: UIViewController {
             // CREANDO DIRECCION PARA EL ARCHIVO DE AUDIO
             let basePath:String = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
             let pathComponents = [basePath, "audio.m4a"]
-            let audioURL = NSURL.fileURL(withPathComponents: pathComponents)!
+            audioURL = NSURL.fileURL(withPathComponents: pathComponents)!
             
             // IMPRESION DE RUTA DONDE SE GUARDAN LOS ARCHIVOS
             print("******************************")
-            print(audioURL)
+            print(audioURL!)
             print("******************************")
             
             //CREAR OPCIONES PARA EL GRABADOR DE AUDIO
@@ -69,7 +77,7 @@ class SoundViewController: UIViewController {
             settings[AVNumberOfChannelsKey] = 2 as AnyObject?
             
             // CREAR EL OBJETO DE GRABACION DE AUDIO
-            grabarAudio = try AVAudioRecorder(url: audioURL, settings: settings)
+            grabarAudio = try AVAudioRecorder(url: audioURL!, settings: settings)
             grabarAudio!.prepareToRecord()
             
         } catch let error as NSError {
