@@ -28,12 +28,15 @@ class SoundViewController: UIViewController {
             
             // CAMBIAR TEXTO DE BOTON GRABAR
             grabarButton.setTitle("GRABAR", for: .normal)
+            reproducirButton.isEnabled = true
+            agregarButton.isEnabled = true
         } else {
             // EMPEZAR A GRABAR
             grabarAudio?.record()
             
             // CAMBIAR EL TEXTO DEL BOTON GRABAR A DETENER
             grabarButton.setTitle("DETENER", for: .normal)
+            reproducirButton.isEnabled = false
         }
     }
     @IBAction func reproducirTapped(_ sender: Any) {
@@ -44,11 +47,19 @@ class SoundViewController: UIViewController {
         }catch {}
     }
     @IBAction func agregarTapped(_ sender: Any) {
+        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+        let grabacion = Grabacion(context: context)
+        grabacion.nombre = nombreTextField.text
+        grabacion.audio = NSData(contentsOf: audioURL!)! as Data
+        (UIApplication.shared.delegate as! AppDelegate).saveContext()
+        navigationController!.popViewController(animated: true)
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         configurarGrabacion()
+        reproducirButton.isEnabled = false
+        agregarButton.isEnabled = false
     }
     
     
