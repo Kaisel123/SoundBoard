@@ -21,6 +21,14 @@ class SoundViewController: UIViewController {
     var reproducirAudio:AVAudioPlayer?
     var audioURL:URL?
     
+    
+    var contador = 0
+    var tiempo = Timer()
+    @IBOutlet weak var temporizador: UILabel!
+    
+    @IBOutlet weak var volumen: UISlider!
+    
+    
     @IBAction func grabarTapped(_ sender: Any) {
         if grabarAudio!.isRecording {
             // DETENER LA GRABACION
@@ -30,18 +38,28 @@ class SoundViewController: UIViewController {
             grabarButton.setTitle("GRABAR", for: .normal)
             reproducirButton.isEnabled = true
             agregarButton.isEnabled = true
+            
+            tiempo.invalidate()
+            		
         } else {
             // EMPEZAR A GRABAR
             grabarAudio?.record()
             
             // CAMBIAR EL TEXTO DEL BOTON GRABAR A DETENER
             grabarButton.setTitle("DETENER", for: .normal)
+            
             reproducirButton.isEnabled = false
+            
+            contador = 0
+            tiempo.invalidate()
+            tiempo = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(contadorDeTiempo), userInfo: nil, repeats: true)
+           
         }
     }
     @IBAction func reproducirTapped(_ sender: Any) {
         do{
             try reproducirAudio = AVAudioPlayer(contentsOf: audioURL!)
+            Volumen()
             reproducirAudio!.play()
             print("Reproduciendo")
         }catch {}
@@ -51,6 +69,7 @@ class SoundViewController: UIViewController {
         let grabacion = Grabacion(context: context)
         grabacion.nombre = nombreTextField.text
         grabacion.audio = NSData(contentsOf: audioURL!)! as Data
+        grabacion.temporizador = temporizador.text
         (UIApplication.shared.delegate as! AppDelegate).saveContext()
         navigationController!.popViewController(animated: true)
     }
@@ -62,6 +81,22 @@ class SoundViewController: UIViewController {
         agregarButton.isEnabled = false
     }
     
+    @objc func contadorDeTiempo() {
+        contador += 1
+        let seg:String = String(format: "%02d",(contador % 3600) % 60)
+        let min:String = String(format: "%02d",(contador % 3600) / 60)
+        let hrs:String = String(format: "%02d",contador / 3600)
+        temporizador.text = "\(hrs):\(min):\(seg)"
+    }
+    
+    @IBAction func configurarAudio(_ sender: Any) {
+        Volumen()
+    }
+    
+    func Volumen(){
+        let selectedValue = Float(volumen.value)
+        reproducirAudio?.volume = selectedValue
+    }
     
     func configurarGrabacion() {
         do {
@@ -95,5 +130,6 @@ class SoundViewController: UIViewController {
             print(error)
         }
     }
+    
 }
 	
